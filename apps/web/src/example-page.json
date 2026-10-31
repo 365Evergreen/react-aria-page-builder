@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "theme": {
+    "themePrimary": "#005a9e",
+    "themeLighterAlt": "#f2f8fc",
+    "themeLighter": "#deecf9",
+    "themeLight": "#c7e0f4",
+    "themeTertiary": "#71afe5",
+    "themeSecondary": "#2b88d8",
+    "themeDarkAlt": "#106ebe",
+    "themeDark": "#005a9e",
+    "themeDarker": "#004578",
+    "neutralLighterAlt": "#faf9f8",
+    "neutralLighter": "#f3f2f1",
+    "neutralLight": "#edebe9",
+    "neutralQuaternaryAlt": "#e1dfdd",
+    "neutralQuaternary": "#d2d0ce",
+    "neutralTertiaryAlt": "#c8c6c4",
+    "neutralTertiary": "#a19f9d",
+    "neutralSecondaryAlt": "#8a8886",
+    "neutralSecondary": "#605e5c",
+    "neutralPrimaryAlt": "#3b3a39",
+    "neutralPrimary": "#323130",
+    "neutralDark": "#201f1e",
+    "black": "#000000",
+    "white": "#ffffff"
+  },
+  "blocks": [
+    {
+      "id": "hero-home",
+      "type": "hero-banner",
+      "styles": {
+        "height": "58vh",
+        "textAlign": "left"
+      },
+      "data": {
+        "eyebrow": "Component-driven publishing",
+        "title": "Build pages from reusable React blocks",
+        "description": "One registry powers rendering, editor discovery, defaults and validation.",
+        "buttonText": "Explore the scaffold",
+        "buttonUrl": "#section-features",
+        "bgImage": ""
+      }
+    },
+    {
+      "id": "section-features",
+      "type": "grid-section",
+      "styles": {
+        "padding": "4rem 1.5rem",
+        "gap": "1.5rem"
+      },
+      "data": {
+        "heading": "Featured components",
+        "columns": 3,
+        "items": [
+          {
+            "id": "registry-card",
+            "title": "Registry map",
+            "description": "Resolve blocks and expose editor metadata from the same catalogue."
+          },
+          {
+            "id": "theme-card",
+            "title": "Dynamic theming",
+            "description": "Map theme JSON to scoped CSS custom properties without prop drilling."
+          },
+          {
+            "id": "validation-card",
+            "title": "Runtime validation",
+            "description": "Validate persisted page JSON before it reaches the renderer."
+          }
+        ]
+      }
+    },
+    {
+      "id": "gallery-featured",
+      "type": "media-gallery",
+      "styles": {
+        "gap": "1rem"
+      },
+      "data": {
+        "heading": "Media gallery starter",
+        "layoutType": "grid",
+        "items": []
+      }
+    }
+  ]
+}
