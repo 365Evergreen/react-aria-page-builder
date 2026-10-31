@@ -19,7 +19,8 @@ const setup = () =>
     />,
   );
 
-const rows = () => screen.getAllByRole('row');
+const rows = () =>
+  within(screen.getByRole('treegrid', { name: 'Page canvas' })).getAllByRole('row');
 const labels = () => rows().map((r) => r.getAttribute('aria-label') ?? r.textContent);
 
 describe('PageBuilder', () => {
@@ -40,8 +41,8 @@ describe('PageBuilder', () => {
     const user = userEvent.setup();
     setup();
     await user.type(screen.getByRole('searchbox', { name: 'Search blocks' }), 'gallery');
-    const list = screen.getByRole('listbox', { name: 'Available blocks' });
-    expect(within(list).getAllByRole('option')).toHaveLength(1);
+    const list = screen.getByRole('grid', { name: 'Available blocks' });
+    expect(within(list).getAllByRole('row')).toHaveLength(1);
     await user.clear(screen.getByRole('searchbox', { name: 'Search blocks' }));
     await user.type(screen.getByRole('searchbox', { name: 'Search blocks' }), 'zzzz');
     expect(screen.getByText(/No blocks match/)).toBeInTheDocument();
@@ -51,7 +52,7 @@ describe('PageBuilder', () => {
     const user = userEvent.setup();
     setup();
     await user.click(rows()[0]);
-    const option = screen.getByRole('option', { name: /Layout section/ });
+    const option = screen.getByRole('row', { name: /Layout section/ });
     act(() => option.focus());
     await user.keyboard('{Enter}');
     expect(rows()).toHaveLength(4);
@@ -59,12 +60,12 @@ describe('PageBuilder', () => {
     expect(screen.getAllByRole('status')[0]).toHaveTextContent(/added, position 2 of 4/);
   });
 
-  it('inserts with Space', async () => {
+  it('inserts the focused block with Enter at the end when nothing is selected', async () => {
     const user = userEvent.setup();
     setup();
-    const option = screen.getByRole('option', { name: /Hero banner/ });
+    const option = within(screen.getByRole('grid', { name: 'Available blocks' })).getByRole('row', { name: /Hero banner/ });
     act(() => option.focus());
-    await user.keyboard(' ');
+    await user.keyboard('{Enter}');
     expect(rows()).toHaveLength(4);
   });
 
@@ -120,5 +121,39 @@ describe('PageBuilder', () => {
     expect(screen.getByRole('button', { name: 'Delete' })).toBeDisabled();
     expect(screen.getByRole('button', { name: 'Undo' })).toBeDisabled();
   });
+
+  it('edits alt text and validates URLs in the gallery', async () => {
+    const user = userEvent.setup();
+    setup();
+    await user.click(rows()[1]);
+    await user.click(screen.getByRole('button', { name: 'Add image' }));
+    const url = screen.getByRole('textbox', { name: /Image URL/ });
+    expect(url).toBeInvalid();
+    await user.type(url, 'javascript:alert(1)');
+    expect(url).toBeInvalid();
+    expect(screen.getByText(/Use an http\(s\) URL/)).toBeInTheDocument();
+    await user.clear(url);
+    await user.type(url, 'https://example.com/a.png');
+    expect(url).toBeValid();
+    const alt = screen.getByRole('textbox', { name: /Alt text/ });
+    expect(alt).toBeInvalid();
+    await user.click(screen.getByRole('checkbox', { name: /Decorative/ }));
+    expect(alt).toBeValid();
+  });
+
+  it('refuses to save invalid pages and saves valid ones', async () => {
+    const user = userEvent.setup();
+    localStorage.clear();
+    setup();
+    await user.click(rows()[1]);
+    await user.click(screen.getByRole('button', { name: 'Add image' }));
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+    expect(screen.getByRole('alert')).toHaveTextContent(/Cannot save yet/);
+    await user.click(screen.getByRole('button', { name: 'Remove image 1' }));
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+    expect(localStorage.getItem('react-aria-page-builder.page')).toContain('"format": "react-aria-page-builder"');
+  });
 });
+
+
 

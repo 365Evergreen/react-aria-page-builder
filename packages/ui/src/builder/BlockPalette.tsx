@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useDragAndDrop } from 'react-aria-components/useDragAndDrop';
-import { ListBox, ListBoxItem, Text } from '../primitives/ListBox/ListBox';
+import { GridList, GridListItem, Text } from '../primitives/GridList/GridList';
 import { SearchField } from '../primitives/SearchField/SearchField';
 import { blockDefinitions } from './definitions';
 import { BLOCK_DRAG_TYPE } from './dnd';
@@ -40,20 +40,12 @@ export function BlockPalette({ onInsert }: BlockPaletteProps) {
         onChange={setQuery}
       />
       <p id="pb-palette-help" className="pb-help">
-        Press Enter or Space to insert a block, or drag it onto the canvas.
+        Press Enter on a block to insert it. To drag, use the block's drag handle with the mouse, or focus the handle, press Enter, then move to the canvas and press Enter again.
       </p>
-      <div
-        onKeyDownCapture={(event) => {
-          if (event.key !== ' ') return;
-          const option = (event.target as HTMLElement).closest<HTMLElement>('[role="option"]');
-          if (!option?.dataset.key) return;
-          event.preventDefault();
-          onInsert(option.dataset.key);
-        }}
-      >
-      <ListBox
+      <GridList
         aria-label="Available blocks"
         aria-describedby="pb-palette-help"
+        layout="stack"
         items={visible}
         dragAndDropHooks={dragAndDropHooks}
         onAction={(key) => onInsert(String(key))}
@@ -61,18 +53,16 @@ export function BlockPalette({ onInsert }: BlockPaletteProps) {
         className="pb-palette-list"
       >
         {(definition) => (
-          <ListBoxItem
+          <GridListItem
             id={definition.type}
             textValue={definition.name}
             className="pb-palette-item"
           >
-            <Text slot="label">{definition.name}</Text>
+            <span className="pb-palette-name">{definition.name}</span>
             <Text slot="description">{definition.description}</Text>
-          </ListBoxItem>
+          </GridListItem>
         )}
-      </ListBox>
-      </div>
-    </section>
+      </GridList>    </section>
   );
 }
 

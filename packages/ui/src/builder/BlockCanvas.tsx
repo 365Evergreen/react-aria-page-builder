@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
+import { memo, useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import type { Selection } from 'react-aria-components/Tree';
 import {
   isTextDropItem,
@@ -6,7 +6,10 @@ import {
   type DropItem,
   type ItemDropTarget,
 } from 'react-aria-components/useDragAndDrop';
+import { PageRenderer } from '../page-builder/PageRenderer';
+import type { ThemeColors } from '../page-builder/types';
 import { Tree, TreeItem } from '../primitives/Tree/Tree';
+import { nodeToBlock } from './blocks';
 import { canHaveChildren, getDefinition, getNodeLabel } from './definitions';
 import { BLOCK_DRAG_TYPE, NODE_DRAG_TYPE, resolvePlacement } from './dnd';
 import { findNode, type PageNode, type PageTree } from './model';
@@ -16,6 +19,7 @@ interface BlockCanvasProps {
   tree: PageTree;
   selectedId: string | null;
   focusId: string | null;
+  theme: ThemeColors;
   dispatch: (action: BuilderAction) => void;
 }
 
@@ -25,7 +29,24 @@ const collectContainerIds = (tree: PageTree): string[] =>
     ...collectContainerIds(node.children),
   ]);
 
-function renderNode(node: PageNode) {
+const NodePreview = memo(function NodePreview({
+  node,
+  theme,
+}: {
+  node: PageNode;
+  theme: ThemeColors;
+}) {
+  const block = nodeToBlock(node);
+  if (!block) return null;
+  return (
+    // Decorative render of the block; the row's own label is its accessible name.
+    <span className="pb-node-preview" aria-hidden="true" {...{ inert: true }}>
+      <PageRenderer blocks={[block]} theme={theme} asLandmark={false} />
+    </span>
+  );
+});
+
+function renderNode(node: PageNode, theme: ThemeColors) {
   const definition = getDefinition(node.type);
   return (
     <TreeItem
@@ -36,18 +57,19 @@ function renderNode(node: PageNode) {
         <span className="pb-node">
           <span className="pb-node-label">{getNodeLabel(node)}</span>
           <span className="pb-node-type">{definition?.category ?? 'unknown'}</span>
+          <NodePreview node={node} theme={theme} />
         </span>
       }
     >
-      {node.children.map(renderNode)}
+      {node.children.map((child) => renderNode(child, theme))}
     </TreeItem>
   );
 }
-
 export function BlockCanvas({
   tree,
   selectedId,
   focusId,
+  theme,
   dispatch,
 }: BlockCanvasProps) {
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -205,7 +227,7 @@ export function BlockCanvas({
           <span>Canvas is empty. Add blocks from the palette.</span>
         )}
       >
-        {tree.map(renderNode)}
+        {tree.map((node) => renderNode(node, theme))}
       </Tree>
     </div>
   );

@@ -1,15 +1,21 @@
-import { useCallback, useMemo, useReducer, useState } from 'react';
-import { Redo2, Undo2 } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
+import { Download, FolderOpen, Redo2, Save, Undo2, Upload } from 'lucide-react';
 import { Button } from '../primitives/Button/Button';
 import { Toolbar } from '../primitives/Toolbar/Toolbar';
 import { PageRenderer } from '../page-builder/PageRenderer';
-import type { PageBlockConfig } from '../page-builder/block-configs';
-import { isRegisteredBlockType } from '../page-builder/registry';
 import type { ThemeColors } from '../page-builder/types';
 import { BlockCanvas } from './BlockCanvas';
 import { BlockPalette } from './BlockPalette';
 import { canHaveChildren } from './definitions';
-import { findNode, flattenTree, getSiblings, type PageTree } from './model';
+import { treeToBlocks } from './blocks';
+import { findNode, getSiblings, type PageTree } from './model';
+import {
+  DEFAULT_STORAGE_KEY,
+  loadPage,
+  parsePage,
+  savePage,
+  serializePage,
+} from './persistence';
 import { PropsPanel } from './PropsPanel';
 import { builderReducer, createInitialState } from './reducer';
 import './builder.css';
@@ -17,30 +23,17 @@ import './builder.css';
 interface PageBuilderProps {
   initialTree?: PageTree;
   theme: ThemeColors;
+  storageKey?: string;
+  /** Save valid pages to localStorage shortly after each change. */
+  autoSave?: boolean;
 }
 
-export const blocksToTree = (blocks: PageBlockConfig[]): PageTree =>
-  blocks.map((block) => ({
-    id: block.id,
-    type: block.type,
-    props: { data: block.data as Record<string, unknown>, styles: block.styles },
-    children: [],
-  }));
-
-export const treeToBlocks = (tree: PageTree): PageBlockConfig[] =>
-  flattenTree(tree)
-    .filter((node) => isRegisteredBlockType(node.type))
-    .map(
-      (node) =>
-        ({
-          id: node.id,
-          type: node.type,
-          styles: node.props.styles,
-          data: node.props.data,
-        }) as PageBlockConfig,
-    );
-
-export function PageBuilder({ initialTree = [], theme }: PageBuilderProps) {
+export function PageBuilder({
+  initialTree = [],
+  theme,
+  storageKey = DEFAULT_STORAGE_KEY,
+  autoSave = false,
+}: PageBuilderProps) {
   const [state, dispatch] = useReducer(
     builderReducer,
     initialTree,
@@ -48,6 +41,61 @@ export function PageBuilder({ initialTree = [], theme }: PageBuilderProps) {
   );
   const [showPreview, setShowPreview] = useState(false);
   const { tree, selectedId } = state;
+  const [notice, setNotice] = useState<{ kind: 'info' | 'error'; lines: string[] } | null>(
+    null,
+  );
+  const fileInput = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!autoSave) return;
+    const timer = setTimeout(() => {
+      savePage(tree, storageKey);
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [autoSave, tree, storageKey]);
+
+  const handleSave = () => {
+    const result = savePage(tree, storageKey);
+    setNotice(
+      result.ok
+        ? { kind: 'info', lines: ['Page saved in this browser.'] }
+        : { kind: 'error', lines: ['Cannot save yet:', ...result.errors] },
+    );
+  };
+
+  const handleLoad = () => {
+    const result = loadPage(storageKey);
+    if (!result) return setNotice({ kind: 'error', lines: ['No saved page found.'] });
+    if (!result.ok) {
+      return setNotice({ kind: 'error', lines: ['The saved page is invalid:', ...result.errors] });
+    }
+    dispatch({ type: 'load', tree: result.tree, message: 'Saved page loaded.' });
+    setNotice({ kind: 'info', lines: ['Saved page loaded. Undo restores the previous page.'] });
+  };
+
+  const handleExport = () => {
+    const result = serializePage(tree);
+    if (!result.ok) {
+      return setNotice({ kind: 'error', lines: ['Cannot export yet:', ...result.errors] });
+    }
+    const url = URL.createObjectURL(new Blob([result.json], { type: 'application/json' }));
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'page.json';
+    link.click();
+    URL.revokeObjectURL(url);
+    setNotice({ kind: 'info', lines: ['Exported page.json.'] });
+  };
+
+  const handleImport = async (file: File | undefined) => {
+    if (!file) return;
+    const result = parsePage(await file.text());
+    if (!result.ok) {
+      return setNotice({ kind: 'error', lines: [`Cannot import ${file.name}:`, ...result.errors] });
+    }
+    dispatch({ type: 'load', tree: result.tree, message: `Imported ${file.name}.` });
+    setNotice({ kind: 'info', lines: [`Imported ${file.name}. Undo restores the previous page.`] });
+  };
 
   const selected = selectedId ? findNode(tree, selectedId) : null;
   const siblings = selected ? getSiblings(tree, selected.parentId) : [];
@@ -80,6 +128,9 @@ export function PageBuilder({ initialTree = [], theme }: PageBuilderProps) {
 
   return (
     <div className="pb-shell">
+      <header className="pb-header">
+        <h1 className="pb-title">Page builder</h1>
+      </header>
       <div className="pb-live pb-visually-hidden" role="status" aria-live="polite">
         {state.announcement}
       </div>
@@ -88,7 +139,7 @@ export function PageBuilder({ initialTree = [], theme }: PageBuilderProps) {
         <BlockPalette onInsert={insertAtSelection} />
       </aside>
 
-      <section className="pb-main" aria-labelledby="pb-canvas-title">
+      <main className="pb-main" aria-labelledby="pb-canvas-title">
         <h2 id="pb-canvas-title">Canvas</h2>
         <Toolbar aria-label="Block actions" className="pb-toolbar">
           <Button
@@ -137,6 +188,42 @@ export function PageBuilder({ initialTree = [], theme }: PageBuilderProps) {
             {showPreview ? 'Hide preview' : 'Show preview'}
           </Button>
         </Toolbar>
+        <Toolbar aria-label="Page file" className="pb-toolbar">
+          <Button variant="secondary" onPress={handleSave}>
+            <Save size={16} aria-hidden="true" /> Save
+          </Button>
+          <Button variant="secondary" onPress={handleLoad}>
+            <FolderOpen size={16} aria-hidden="true" /> Load
+          </Button>
+          <Button variant="secondary" onPress={handleExport}>
+            <Download size={16} aria-hidden="true" /> Export JSON
+          </Button>
+          <Button variant="secondary" onPress={() => fileInput.current?.click()}>
+            <Upload size={16} aria-hidden="true" /> Import JSON
+          </Button>
+          <input
+            ref={fileInput}
+            type="file"
+            accept="application/json,.json"
+            hidden
+            data-testid="import-file"
+            aria-label="Import page JSON file"
+            onChange={(event) => {
+              void handleImport(event.target.files?.[0]);
+              event.target.value = '';
+            }}
+          />
+        </Toolbar>
+        {notice && (
+          <div
+            className={`pb-notice pb-notice-${notice.kind}`}
+            role={notice.kind === 'error' ? 'alert' : 'status'}
+          >
+            {notice.lines.map((line, index) => (
+              <p key={index}>{line}</p>
+            ))}
+          </div>
+        )}
         <p id="pb-canvas-help" className="pb-help">
           Arrow keys move between blocks, Home and End jump to the first and last.
           Alt+Up/Down moves the selected block, Ctrl+D duplicates, Delete removes,
@@ -147,6 +234,7 @@ export function PageBuilder({ initialTree = [], theme }: PageBuilderProps) {
           tree={tree}
           selectedId={selectedId}
           focusId={state.focusId}
+          theme={theme}
           dispatch={dispatch}
         />
         {showPreview && (
@@ -154,7 +242,7 @@ export function PageBuilder({ initialTree = [], theme }: PageBuilderProps) {
             <PageRenderer blocks={blocks} theme={theme} isEditing asLandmark={false} />
           </section>
         )}
-      </section>
+      </main>
 
       <aside className="pb-sidebar" aria-label="Block inspector">
         <PropsPanel tree={tree} selectedId={selectedId} dispatch={dispatch} />
@@ -162,6 +250,7 @@ export function PageBuilder({ initialTree = [], theme }: PageBuilderProps) {
     </div>
   );
 }
+
 
 
 

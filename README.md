@@ -25,9 +25,10 @@ npm run dev
 `apps/web` mounts `PageBuilder` from `packages/ui/src/builder`:
 
 - **Page model** (`model.ts`, `reducer.ts`): a tree of `{ id, type, props, children }` nodes and a pure reducer for add, move, moveBy, remove, duplicate, update, select, undo and redo (100-step history; consecutive edits of one field coalesce). Only `container` blocks accept children. The reducer also produces the aria-live announcement text and the block to focus after each edit.
-- **Block palette** (`BlockPalette.tsx`): searchable React Aria `ListBox` built from the registry. Enter or Space inserts at the selection (inside a selected container, otherwise after the selected block, otherwise at the end); pointer drag drops onto the canvas.
-- **Canvas** (`BlockCanvas.tsx`): React Aria `Tree` with collection drag and drop, drop indicators, and a drag handle per row. Arrow keys, Home and End move and select; Left/Right collapse and expand containers.
-- **Properties panel** (`PropsPanel.tsx`): edits text fields of the selected block.
+- **Block palette** (`BlockPalette.tsx`): searchable React Aria `GridList` built from the registry, with a dedicated drag-handle button per row (no nested interactive controls). Enter on a row inserts at the selection (inside a selected container, otherwise after the selected block, otherwise at the end); drag the handle with the pointer, or press Enter on it for keyboard drag.
+- **Canvas** (`BlockCanvas.tsx`): React Aria `Tree` with collection drag and drop, drop indicators, a drag handle per row, and live block previews (rendered by `PageRenderer` inside an inert, `aria-hidden` wrapper so tree navigation stays accessible). Arrow keys, Home and End move and select; Left/Right collapse and expand containers.
+- **Properties panel** (`PropsPanel.tsx`): schema-driven (`definitions.ts` field definitions): every block prop has a labelled input (text, textarea, number, select, checkbox, URL, repeatable lists). Inputs are validated (required, length, integer range, safe http(s)/relative URLs, alt text required unless an image is marked decorative); only valid values reach the tree.
+- **Persistence** (`persistence.ts`): versioned JSON `{ format: 'react-aria-page-builder', version: 1, page }` validated with zod (unknown types, children on non-containers, duplicate ids, depth). The toolbar offers Save/Load (localStorage key `react-aria-page-builder.page`) and Export/Import JSON; the app also autosaves valid pages. Legacy flat page JSON is imported; newer versions are rejected. Save and export refuse invalid pages.
 
 ### Keyboard
 
@@ -48,7 +49,23 @@ Changes are announced in a polite live region and focus returns to the affected 
 npm test
 ```
 
-Vitest and Testing Library cover the reducer, keyboard interaction and axe checks. Pointer drag and drop and keyboard drag mode are not exercised in jsdom.
+Vitest and Testing Library cover the reducer, validation, persistence, keyboard interaction and jsdom axe checks.
+
+Real-browser tests (Playwright, Chromium) cover pointer drag from the palette, pointer reorder, keyboard drag on the canvas and from the palette, previews, validation, persistence round trips and axe scans (WCAG 2.x A/AA, including colour contrast, which jsdom cannot check):
+
+```bash
+npx playwright install chromium   # once
+npm run test:e2e                 # builds, serves on :4173 and runs the suite
+```
+
+Keyboard drag: Enter on a drag handle, Arrow keys between insertion points, Enter to drop, Escape to cancel (Tab also cancels).
+
+### Known gaps
+
+- Only Chromium is tested in e2e.
+- Palette rows insert with Enter, not Space.
+- Previews are clipped to a fixed height and not scaled.
+- Only format v1 and the legacy flat format are understood; add migrations when the format changes.
 
 ## Other commands
 

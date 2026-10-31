@@ -41,7 +41,14 @@ export type BuilderAction =
   | { type: 'moveBy'; id: string; delta: -1 | 1 }
   | { type: 'remove'; id: string }
   | { type: 'duplicate'; id: string; newId?: () => string }
-  | { type: 'update'; id: string; field: string; value: unknown }
+  | {
+      type: 'update';
+      id: string;
+      field: string;
+      value: unknown;
+      scope?: 'data' | 'styles';
+    }
+  | { type: 'load'; tree: PageTree; message?: string }
   | { type: 'select'; id: string | null }
   | { type: 'undo' }
   | { type: 'redo' }
@@ -206,6 +213,12 @@ export function builderReducer(
       }
       return commit(state, tree, { lastEditKey: key });
     }
+
+    case 'load':
+      return commit(state, action.tree, {
+        selectedId: null,
+        announcement: action.message ?? 'Page loaded.',
+      });
 
     case 'select':
       return { ...state, selectedId: action.id };

@@ -6,3 +6,5 @@ export * from './definitions';
 export * from './dnd';
 export * from './model';
 export * from './reducer';
+export * from './blocks';
+export * from './persistence';
