@@ -30,7 +30,7 @@ export const Gallery = ({ config }: GalleryProps) => {
           >
             {items.map((item) => (
               <figure className={styles.item} key={item.id}>
-                <img src={item.src} alt={item.alt} loading="lazy" />
+                <img src={item.src} alt={item.decorative ? '' : item.alt} loading="lazy" />
                 {item.caption && <figcaption>{item.caption}</figcaption>}
               </figure>
             ))}

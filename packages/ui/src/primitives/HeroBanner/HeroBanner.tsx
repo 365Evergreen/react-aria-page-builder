@@ -4,6 +4,7 @@ import styles from './HeroBanner.module.css';
 
 interface HeroBannerProps {
   config: HeroBannerConfig;
+  headingLevel?: 1 | 2;
 }
 
 type HeroStyleProperties = CSSProperties & {
@@ -20,7 +21,8 @@ const alignmentToPosition = (
   return 'center';
 };
 
-export const HeroBanner = ({ config }: HeroBannerProps) => {
+export const HeroBanner = ({ config, headingLevel = 1 }: HeroBannerProps) => {
+  const Heading = headingLevel === 1 ? 'h1' : 'h2';
   const data = config.data;
   const textAlign = config.styles?.textAlign ?? 'center';
   const hasImage = Boolean(data?.bgImage);
@@ -41,7 +43,7 @@ export const HeroBanner = ({ config }: HeroBannerProps) => {
       <div className={styles.overlay}>
         <div className={styles.content}>
           {data?.eyebrow && <p className={styles.eyebrow}>{data.eyebrow}</p>}
-          <h1 className={styles.title}>{data?.title ?? 'Placeholder heading'}</h1>
+          <Heading className={styles.title}>{data?.title ?? 'Placeholder heading'}</Heading>
           {data?.description && (
             <p className={styles.description}>{data.description}</p>
           )}

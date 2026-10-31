@@ -49,6 +49,7 @@ export interface GalleryItem {
   id: string;
   src: string;
   alt: string;
+  decorative?: boolean;
   caption?: string;
 }
 

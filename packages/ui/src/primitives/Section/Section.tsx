@@ -21,7 +21,7 @@ export const Section = ({ config }: SectionProps) => {
 
   return (
     <section
-      id="featured-components"
+      id={config.id}
       className={styles.section}
       style={dynamicStyles}
     >

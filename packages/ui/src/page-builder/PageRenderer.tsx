@@ -14,7 +14,10 @@ export const PageRenderer = ({
   blocks,
   theme,
   isEditing = false,
-}: PageRendererProps) => (
+}: PageRendererProps) => {
+  const firstHeroId = blocks.find((block) => block.type === 'hero-banner')?.id;
+
+  return (
   <ThemeInjector theme={theme}>
     <main className="page-layout-wrapper">
       {blocks.map((block) => {
@@ -28,11 +31,17 @@ export const PageRenderer = ({
 
         const definition = BlockRegistry[block.type];
         const ComponentToRender = definition.component as ComponentType<
-          BlockComponentProps<PageBlockConfig>
+          BlockComponentProps<PageBlockConfig> & { headingLevel?: 1 | 2 }
         >;
 
-        return <ComponentToRender key={block.id} config={block} />;
+        const extraProps =
+          block.type === 'hero-banner'
+            ? { headingLevel: (block.id === firstHeroId ? 1 : 2) as 1 | 2 }
+            : {};
+
+        return <ComponentToRender key={block.id} config={block} {...extraProps} />;
       })}
     </main>
   </ThemeInjector>
-);
+  );
+};

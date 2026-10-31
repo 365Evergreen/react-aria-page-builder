@@ -52,14 +52,14 @@
   padding: 0.75rem 1.5rem;
   border-radius: 0.3rem;
   color: var(--white);
-  background-color: var(--theme-secondary);
+  background-color: var(--theme-dark);
   font-weight: 700;
   text-decoration: none;
   transition: background-color 160ms ease, transform 160ms ease;
 }
 
 .ctaButton:hover {
-  background-color: var(--theme-dark);
+  background-color: var(--theme-darker);
   transform: translateY(-1px);
 }
 

@@ -38,7 +38,7 @@
         "title": "Build pages from reusable React blocks",
         "description": "One registry powers rendering, editor discovery, defaults and validation.",
         "buttonText": "Explore the scaffold",
-        "buttonUrl": "#featured-components",
+        "buttonUrl": "#section-features",
         "bgImage": ""
       }
     },
