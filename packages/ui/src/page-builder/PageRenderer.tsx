@@ -8,18 +8,22 @@ interface PageRendererProps {
   blocks: PageBlockConfig[];
   theme: ThemeColors;
   isEditing?: boolean;
+  /** Render as a plain container when embedded inside another landmark. */
+  asLandmark?: boolean;
 }
 
 export const PageRenderer = ({
   blocks,
   theme,
   isEditing = false,
+  asLandmark = true,
 }: PageRendererProps) => {
+  const Wrapper = asLandmark ? 'main' : 'div';
   const firstHeroId = blocks.find((block) => block.type === 'hero-banner')?.id;
 
   return (
   <ThemeInjector theme={theme}>
-    <main className="page-layout-wrapper">
+    <Wrapper className="page-layout-wrapper">
       {blocks.map((block) => {
         if (!isRegisteredBlockType(block.type)) {
           return isEditing ? (
@@ -41,7 +45,8 @@ export const PageRenderer = ({
 
         return <ComponentToRender key={block.id} config={block} {...extraProps} />;
       })}
-    </main>
+    </Wrapper>
   </ThemeInjector>
   );
 };
+

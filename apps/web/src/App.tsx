@@ -1,5 +1,7 @@
 import {
-  PageRenderer,
+  PageBuilder,
+  blocksToTree,
+  loadPage,
   pageDefinitionSchema,
   type StoredPageDefinition,
 } from '@page-builder/ui';
@@ -18,6 +20,8 @@ export default function App() {
   }
 
   const page: StoredPageDefinition = parsedPage.data;
+  const saved = loadPage();
+  const initialTree = saved?.ok ? saved.tree : blocksToTree(page.blocks);
 
-  return <PageRenderer blocks={page.blocks} theme={page.theme} isEditing />;
+  return <PageBuilder initialTree={initialTree} theme={page.theme} autoSave />;
 }
