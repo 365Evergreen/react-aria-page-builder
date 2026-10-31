@@ -20,6 +20,9 @@ export const PageRenderer = ({
 }: PageRendererProps) => {
   const Wrapper = asLandmark ? 'main' : 'div';
   const firstHeroId = blocks.find((block) => block.type === 'hero-banner')?.id;
+  const firstPostId = firstHeroId
+    ? undefined
+    : blocks.find((block) => block.type === 'post-body')?.id;
 
   return (
   <ThemeInjector theme={theme}>
@@ -41,7 +44,9 @@ export const PageRenderer = ({
         const extraProps =
           block.type === 'hero-banner'
             ? { headingLevel: (block.id === firstHeroId ? 1 : 2) as 1 | 2 }
-            : {};
+            : block.type === 'post-body'
+              ? { headingLevel: (block.id === firstPostId ? 1 : 2) as 1 | 2 }
+              : {};
 
         return <ComponentToRender key={block.id} config={block} {...extraProps} />;
       })}

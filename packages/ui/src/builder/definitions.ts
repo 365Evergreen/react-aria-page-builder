@@ -13,7 +13,8 @@ export type FieldKind =
   | 'integer'
   | 'select'
   | 'boolean'
-  | 'list';
+  | 'list'
+  | 'richtext';
 
 export interface FieldDef {
   key: string;
@@ -50,7 +51,7 @@ export const validateField = (
   value: unknown,
   siblings: Record<string, unknown> = {},
 ): string | null => {
-  if (field.kind === 'boolean' || field.kind === 'list') return null;
+  if (field.kind === 'boolean' || field.kind === 'list' || field.kind === 'richtext') return null;
   const text = value === undefined || value === null ? '' : String(value);
   const trimmed = text.trim();
 
@@ -153,6 +154,23 @@ const FIELDS: Record<RegisteredBlockType, FieldDef[]> = {
       newItem: () => ({ id: newId(), src: '', alt: '', decorative: false, caption: '' }),
     },
     styleText('gap', 'Gap', 'A CSS length such as 1rem.'),
+  ],
+  'rich-text': [
+    { key: 'content', label: 'Content', kind: 'richtext' },
+    styleText('maxWidth', 'Maximum width', 'A CSS length such as 44rem.'),
+  ],
+  'post-body': [
+    { key: 'title', label: 'Title', kind: 'text', required: true, maxLength: 200 },
+    { key: 'author', label: 'Author', kind: 'text', maxLength: 120 },
+    {
+      key: 'publishedOn',
+      label: 'Published on',
+      kind: 'text',
+      maxLength: 10,
+      description: 'Date as YYYY-MM-DD.',
+    },
+    { key: 'content', label: 'Content', kind: 'richtext' },
+    styleText('maxWidth', 'Maximum width', 'A CSS length such as 44rem.'),
   ],
 };
 const registryDefinitions: BuilderBlockDefinition[] = (

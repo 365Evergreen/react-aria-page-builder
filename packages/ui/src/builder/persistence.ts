@@ -83,18 +83,28 @@ export const validateTree = (tree: PageTree): string[] => {
   return errors;
 };
 
-export const serializePage = (tree: PageTree, now = new Date()) => {
-  const errors = validateTree(tree);
+export interface PageDocument {
+  format: typeof PAGE_FORMAT;
+  version: number;
+  savedAt?: string;
+  tree: PageTree;
+}
+
+export const createDocument = (tree: PageTree, now = new Date()): PageDocument => ({
+  format: PAGE_FORMAT,
+  version: PAGE_VERSION,
+  savedAt: now.toISOString(),
+  tree,
+});
+
+export const serializeDocument = (doc: PageDocument) => {
+  const errors = validateTree(doc.tree);
   if (errors.length > 0) return { ok: false as const, errors };
-  return {
-    ok: true as const,
-    json: JSON.stringify(
-      { format: PAGE_FORMAT, version: PAGE_VERSION, savedAt: now.toISOString(), tree },
-      null,
-      2,
-    ),
-  };
+  return { ok: true as const, json: JSON.stringify(doc, null, 2) };
 };
+
+export const serializePage = (tree: PageTree, now = new Date()) =>
+  serializeDocument(createDocument(tree, now));
 
 /**
  * Parses untrusted JSON. Accepts the current format and the legacy flat

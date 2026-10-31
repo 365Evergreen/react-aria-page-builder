@@ -1,3 +1,5 @@
+import type { PostBodyData } from './post-body';
+import type { RichTextDoc } from './rich-text';
 import type { BaseBlockConfig } from './types';
 
 export interface GridItem {
@@ -70,7 +72,28 @@ export type MediaGalleryConfig = BaseBlockConfig<
   type: 'media-gallery';
 };
 
+export interface RichTextData {
+  content: RichTextDoc;
+}
+
+export interface TextBlockStyles {
+  maxWidth?: string;
+}
+
+export type RichTextBlockConfig = BaseBlockConfig<
+  RichTextData,
+  TextBlockStyles
+> & {
+  type: 'rich-text';
+};
+
+export type PostBodyConfig = BaseBlockConfig<PostBodyData, TextBlockStyles> & {
+  type: 'post-body';
+};
+
 export type PageBlockConfig =
   | GridSectionConfig
   | HeroBannerConfig
-  | MediaGalleryConfig;
+  | MediaGalleryConfig
+  | RichTextBlockConfig
+  | PostBodyConfig;

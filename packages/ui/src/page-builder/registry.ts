@@ -4,8 +4,13 @@ import type {
   HeroBannerConfig,
   MediaGalleryConfig,
   PageBlockConfig,
+  PostBodyConfig,
+  RichTextBlockConfig,
 } from './block-configs';
+import { createPostBodyData } from './post-body';
+import { createHeading, createParagraph } from './rich-text';
 import { Gallery, HeroBanner, Section } from '../primitives';
+import { PostBody, RichText } from '../primitives/RichText/RichText';
 
 type PageRegistryItem = RegistryItem<PageBlockConfig>;
 
@@ -74,6 +79,35 @@ export const BlockRegistry = {
       },
     },
   } satisfies RegistryItem<MediaGalleryConfig>,
+  'rich-text': {
+    type: 'rich-text',
+    name: 'Rich text',
+    category: 'content',
+    description: 'Headings, paragraphs and lists with bold, italic, code and links.',
+    component: RichText,
+    version: 1,
+    defaultConfig: {
+      type: 'rich-text',
+      styles: { maxWidth: '44rem' },
+      data: {
+        content: [createHeading('Heading'), createParagraph('Write something here.')],
+      },
+    },
+  } satisfies RegistryItem<RichTextBlockConfig>,
+
+  'post-body': {
+    type: 'post-body',
+    name: 'Post body',
+    category: 'content',
+    description: 'An article with title, byline and rich-text content.',
+    component: PostBody,
+    version: 1,
+    defaultConfig: {
+      type: 'post-body',
+      styles: { maxWidth: '44rem' },
+      data: createPostBodyData(),
+    },
+  } satisfies RegistryItem<PostBodyConfig>,
 } as const;
 
 export type RegisteredBlockType = keyof typeof BlockRegistry;

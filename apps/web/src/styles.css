@@ -38,3 +38,34 @@ a {
   padding: 1rem;
   background: #f3f2f1;
 }
+
+.editor-status,
+.editor-index {
+  max-width: 48rem;
+  margin: 3rem auto;
+  padding: 0 1.5rem;
+}
+
+.editor-nav {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  background: #f3f2f1;
+  border-bottom: 1px solid #c8c6c4;
+  color: #201f1e;
+}
+
+.editor-nav a,
+.editor-index a,
+.editor-status a {
+  color: #004578;
+}
+
+.editor-page-list {
+  padding-left: 1.25rem;
+}
+
+.editor-muted {
+  color: #605e5c;
+}

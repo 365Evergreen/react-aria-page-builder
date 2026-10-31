@@ -11,6 +11,7 @@ import { treeToBlocks } from './blocks';
 import { findNode, getSiblings, type PageTree } from './model';
 import {
   DEFAULT_STORAGE_KEY,
+  type ParseResult,
   loadPage,
   parsePage,
   savePage,
@@ -20,20 +21,45 @@ import { PropsPanel } from './PropsPanel';
 import { builderReducer, createInitialState } from './reducer';
 import './builder.css';
 
+export interface PageBuilderPersistence {
+  save(tree: PageTree): Promise<{ ok: true } | { ok: false; errors: string[] }>;
+  load(): Promise<ParseResult | null>;
+  /** Where the page is kept, for messages. Defaults to `in this browser`. */
+  location?: string;
+}
+
 interface PageBuilderProps {
   initialTree?: PageTree;
   theme: ThemeColors;
   storageKey?: string;
-  /** Save valid pages to localStorage shortly after each change. */
+  /** Overrides the default localStorage persistence (used by the editor's PageStore). */
+  persistence?: PageBuilderPersistence;
+  /** Save valid pages shortly after each change. */
   autoSave?: boolean;
+  /** Heading shown above the builder. */
+  title?: string;
 }
+
+const errorText = (error: unknown) =>
+  error instanceof Error ? error.message : 'Unexpected error.';
 
 export function PageBuilder({
   initialTree = [],
   theme,
   storageKey = DEFAULT_STORAGE_KEY,
+  persistence: customPersistence,
   autoSave = false,
+  title = 'Page builder',
 }: PageBuilderProps) {
+  const persistence = useMemo<PageBuilderPersistence>(
+    () =>
+      customPersistence ?? {
+        save: async (next) => savePage(next, storageKey),
+        load: async () => loadPage(storageKey),
+      },
+    [customPersistence, storageKey],
+  );
+  const location = persistence.location ?? 'in this browser';
   const [state, dispatch] = useReducer(
     builderReducer,
     initialTree,
@@ -49,22 +75,32 @@ export function PageBuilder({
   useEffect(() => {
     if (!autoSave) return;
     const timer = setTimeout(() => {
-      savePage(tree, storageKey);
+      void persistence.save(tree).catch(() => undefined);
     }, 400);
     return () => clearTimeout(timer);
-  }, [autoSave, tree, storageKey]);
+  }, [autoSave, tree, persistence]);
 
-  const handleSave = () => {
-    const result = savePage(tree, storageKey);
+  const handleSave = async () => {
+    let result;
+    try {
+      result = await persistence.save(tree);
+    } catch (error) {
+      result = { ok: false as const, errors: [errorText(error)] };
+    }
     setNotice(
       result.ok
-        ? { kind: 'info', lines: ['Page saved in this browser.'] }
+        ? { kind: 'info', lines: [`Page saved ${location}.`] }
         : { kind: 'error', lines: ['Cannot save yet:', ...result.errors] },
     );
   };
 
-  const handleLoad = () => {
-    const result = loadPage(storageKey);
+  const handleLoad = async () => {
+    let result;
+    try {
+      result = await persistence.load();
+    } catch (error) {
+      return setNotice({ kind: 'error', lines: ['Cannot load the page:', errorText(error)] });
+    }
     if (!result) return setNotice({ kind: 'error', lines: ['No saved page found.'] });
     if (!result.ok) {
       return setNotice({ kind: 'error', lines: ['The saved page is invalid:', ...result.errors] });
@@ -129,7 +165,7 @@ export function PageBuilder({
   return (
     <div className="pb-shell">
       <header className="pb-header">
-        <h1 className="pb-title">Page builder</h1>
+        <h1 className="pb-title">{title}</h1>
       </header>
       <div className="pb-live pb-visually-hidden" role="status" aria-live="polite">
         {state.announcement}
@@ -189,10 +225,10 @@ export function PageBuilder({
           </Button>
         </Toolbar>
         <Toolbar aria-label="Page file" className="pb-toolbar">
-          <Button variant="secondary" onPress={handleSave}>
+          <Button variant="secondary" onPress={() => void handleSave()}>
             <Save size={16} aria-hidden="true" /> Save
           </Button>
-          <Button variant="secondary" onPress={handleLoad}>
+          <Button variant="secondary" onPress={() => void handleLoad()}>
             <FolderOpen size={16} aria-hidden="true" /> Load
           </Button>
           <Button variant="secondary" onPress={handleExport}>

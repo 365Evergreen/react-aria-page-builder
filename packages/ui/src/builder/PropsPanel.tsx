@@ -9,6 +9,8 @@ import {
   type FieldDef,
 } from './definitions';
 import { findNode, type PageTree } from './model';
+import { RichTextEditor } from './RichTextEditor';
+import type { RichTextDoc } from '../page-builder/rich-text';
 import type { BuilderAction } from './reducer';
 
 interface PropsPanelProps {
@@ -148,6 +150,14 @@ function FieldEditor(props: FieldEditorProps) {
         >
           {props.field.label}
         </Checkbox>
+      );
+    case 'richtext':
+      return (
+        <RichTextEditor
+          label={props.field.label}
+          value={Array.isArray(props.value) ? (props.value as RichTextDoc) : []}
+          onChange={props.onChange}
+        />
       );
     case 'list':
       return <ListField {...props} />;

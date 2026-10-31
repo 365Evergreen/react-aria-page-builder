@@ -1,7 +1,8 @@
 import { z } from 'zod';
+import { richTextSchema } from './rich-text';
+import { SAFE_IMAGE, SAFE_LINK } from './safe-url';
 
-export const SAFE_LINK = /^(https?:|mailto:|tel:|\/(?!\/)|#|\.{1,2}\/)/i;
-export const SAFE_IMAGE = /^(https?:|\/(?!\/)|\.{1,2}\/|data:image\/(png|jpe?g|gif|webp|avif);)/i;
+export { SAFE_IMAGE, SAFE_LINK };
 
 const safeLink = z
   .string()
@@ -108,11 +109,37 @@ const mediaGallerySchema = z.object({
   }),
 });
 
+const richTextBlockSchema = z.object({
+  id: z.string().min(1),
+  type: z.literal('rich-text'),
+  styles: z.object({ maxWidth: z.string().optional() }).optional(),
+  data: z.object({ content: richTextSchema }),
+});
+
+const postBodySchema = z.object({
+  id: z.string().min(1),
+  type: z.literal('post-body'),
+  styles: z.object({ maxWidth: z.string().optional() }).optional(),
+  data: z.object({
+    title: z.string().min(1).max(200),
+    author: z.string().max(120).optional(),
+    publishedOn: z
+      .string()
+      .refine((value) => value === '' || /^\d{4}-\d{2}-\d{2}$/.test(value), {
+        message: 'Date must be YYYY-MM-DD',
+      })
+      .optional(),
+    content: richTextSchema,
+  }),
+});
+
 export const pageLayoutSchema = z.array(
   z.discriminatedUnion('type', [
     gridSectionSchema,
     heroBannerSchema,
     mediaGallerySchema,
+    richTextBlockSchema,
+    postBodySchema,
   ]),
 );
 
