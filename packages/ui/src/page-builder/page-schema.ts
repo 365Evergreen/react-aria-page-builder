@@ -1,5 +1,20 @@
 import { z } from 'zod';
 
+const SAFE_LINK = /^(https?:|mailto:|tel:|\/(?!\/)|#|\.{1,2}\/)/i;
+const SAFE_IMAGE = /^(https?:|\/(?!\/)|\.{1,2}\/|data:image\/(png|jpe?g|gif|webp|avif);)/i;
+
+const safeLink = z
+  .string()
+  .refine((value) => value === '' || SAFE_LINK.test(value.trim()), {
+    message: 'URL must be http(s), mailto, tel, or a relative/hash link',
+  });
+
+const safeImageUrl = z
+  .string()
+  .refine((value) => value === '' || SAFE_IMAGE.test(value.trim()), {
+    message: 'Image URL must be http(s) or a relative path',
+  });
+
 const themeSchema = z.object({
   themePrimary: z.string(),
   themeLighterAlt: z.string(),
@@ -61,9 +76,9 @@ const heroBannerSchema = z.object({
     eyebrow: z.string().max(80).optional(),
     title: z.string().max(200).optional(),
     description: z.string().max(500).optional(),
-    bgImage: z.string().optional(),
+    bgImage: safeImageUrl.optional(),
     buttonText: z.string().max(80).optional(),
-    buttonUrl: z.string().optional(),
+    buttonUrl: safeLink.optional(),
   }),
 });
 
@@ -81,9 +96,13 @@ const mediaGallerySchema = z.object({
     items: z.array(
       z.object({
         id: z.string().min(1),
-        src: z.string().min(1),
-        alt: z.string(),
+        src: safeImageUrl.refine((value) => value !== '', 'Image URL is required'),
+        alt: z.string().max(300),
+        decorative: z.boolean().optional(),
         caption: z.string().max(300).optional(),
+      }).refine((item) => item.decorative === true || item.alt.trim() !== '', {
+        message: 'Provide alt text or mark the image as decorative',
+        path: ['alt'],
       }),
     ),
   }),

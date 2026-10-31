@@ -5,7 +5,7 @@ import {
 } from 'react-aria-components/Button';
 import {composeRenderProps} from 'react-aria-components/composeRenderProps';
 import {ProgressCircle} from '../ProgressCircle/ProgressCircle';
-import './Button.module.css';
+import './Button.css';
 
 interface ButtonProps extends RACButtonProps {
   /**
@@ -20,7 +20,9 @@ export function Button(props: ButtonProps) {
   return (
     <RACButton
       {...props}
-      className="react-aria-Button button-base"
+      className={composeRenderProps(props.className, (className) =>
+        `react-aria-Button button-base${className ? `  ${className}` : ''}`,
+      )}
       data-variant={props.variant || 'primary'}>
       {composeRenderProps(props.children, (children, {isPending}) => (
         <>
