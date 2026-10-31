@@ -1,0 +1,75 @@
+.hero {
+  min-height: var(--hero-height);
+  background-color: var(--neutral-dark);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.overlay {
+  display: flex;
+  align-items: center;
+  justify-content: var(--hero-content-position);
+  min-height: inherit;
+  padding: clamp(2rem, 6vw, 6rem);
+  background: linear-gradient(90deg, rgb(0 0 0 / 72%), rgb(0 0 0 / 28%));
+}
+
+.content {
+  max-width: 50rem;
+  text-align: var(--hero-text-align);
+}
+
+.eyebrow {
+  margin: 0 0 0.75rem;
+  color: var(--theme-lighter);
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.title {
+  margin: 0;
+  color: var(--white);
+  font-size: clamp(2.4rem, 6vw, 5rem);
+  line-height: 1.03;
+}
+
+.description {
+  max-width: 44rem;
+  margin: 1.25rem 0 0;
+  color: var(--neutral-lighter-alt);
+  font-size: clamp(1.05rem, 2vw, 1.3rem);
+  line-height: 1.6;
+}
+
+.ctaButton {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  margin-top: 1.75rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.3rem;
+  color: var(--white);
+  background-color: var(--theme-secondary);
+  font-weight: 700;
+  text-decoration: none;
+  transition: background-color 160ms ease, transform 160ms ease;
+}
+
+.ctaButton:hover {
+  background-color: var(--theme-dark);
+  transform: translateY(-1px);
+}
+
+.ctaButton:focus-visible {
+  outline: 3px solid var(--theme-lighter);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ctaButton {
+    transition: none;
+  }
+}
