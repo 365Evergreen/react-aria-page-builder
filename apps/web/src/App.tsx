@@ -1,5 +1,6 @@
 import {
-  PageRenderer,
+  PageBuilder,
+  blocksToTree,
   pageDefinitionSchema,
   type StoredPageDefinition,
 } from '@page-builder/ui';
@@ -19,5 +20,5 @@ export default function App() {
 
   const page: StoredPageDefinition = parsedPage.data;
 
-  return <PageRenderer blocks={page.blocks} theme={page.theme} isEditing />;
+  return <PageBuilder initialTree={blocksToTree(page.blocks)} theme={page.theme} />;
 }

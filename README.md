@@ -20,6 +20,36 @@ npm install
 npm run dev
 ```
 
+## Page builder
+
+`apps/web` mounts `PageBuilder` from `packages/ui/src/builder`:
+
+- **Page model** (`model.ts`, `reducer.ts`): a tree of `{ id, type, props, children }` nodes and a pure reducer for add, move, moveBy, remove, duplicate, update, select, undo and redo (100-step history; consecutive edits of one field coalesce). Only `container` blocks accept children. The reducer also produces the aria-live announcement text and the block to focus after each edit.
+- **Block palette** (`BlockPalette.tsx`): searchable React Aria `ListBox` built from the registry. Enter or Space inserts at the selection (inside a selected container, otherwise after the selected block, otherwise at the end); pointer drag drops onto the canvas.
+- **Canvas** (`BlockCanvas.tsx`): React Aria `Tree` with collection drag and drop, drop indicators, and a drag handle per row. Arrow keys, Home and End move and select; Left/Right collapse and expand containers.
+- **Properties panel** (`PropsPanel.tsx`): edits text fields of the selected block.
+
+### Keyboard
+
+| Key | Action |
+| --- | --- |
+| Arrow keys, Home, End | Move between blocks |
+| Alt+Up / Alt+Down | Move selected block up or down among siblings |
+| Ctrl/Cmd+D | Duplicate |
+| Delete / Backspace | Delete |
+| Ctrl/Cmd+Z, Ctrl/Cmd+Shift+Z (or Y) | Undo, redo |
+| Enter on a drag handle, then arrows | Keyboard drag and drop (React Aria) |
+
+Changes are announced in a polite live region and focus returns to the affected block. Animations are disabled under `prefers-reduced-motion`.
+
+## Tests
+
+```bash
+npm test
+```
+
+Vitest and Testing Library cover the reducer, keyboard interaction and axe checks. Pointer drag and drop and keyboard drag mode are not exercised in jsdom.
+
 ## Other commands
 
 ```bash

@@ -1,4 +1,5 @@
 export * from './primitives';
+export * from './builder';
 export * from './page-builder/block-configs';
 export * from './page-builder/createBlock';
 export * from './page-builder/page-schema';

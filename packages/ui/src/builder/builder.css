@@ -1,0 +1,121 @@
+.pb-shell {
+  display: grid;
+  grid-template-columns: minmax(14rem, 18rem) minmax(0, 1fr) minmax(14rem, 18rem);
+  gap: 1rem;
+  padding: 1rem;
+  align-items: start;
+}
+
+@media (max-width: 60rem) {
+  .pb-shell {
+    grid-template-columns: 1fr;
+  }
+}
+
+.pb-shell h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1.125rem;
+}
+
+.pb-help {
+  margin: 0.5rem 0;
+  font-size: 0.875rem;
+  color: #4a4846;
+}
+
+.pb-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.pb-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.pb-palette-list,
+.pb-canvas .react-aria-Tree {
+  width: 100%;
+  max-height: none;
+  min-height: 12rem;
+}
+
+.pb-palette-item {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 0.5rem;
+  padding: 0.5rem;
+  border-radius: 6px;
+  cursor: grab;
+  outline: none;
+}
+
+.pb-palette-item [slot='description'] {
+  grid-column: 2;
+  font-size: 0.8125rem;
+  color: #4a4846;
+}
+
+.pb-palette-item[data-focus-visible] {
+  outline: 2px solid #0f6cbd;
+  outline-offset: -2px;
+}
+
+.pb-palette-item[data-hovered] {
+  background: #f3f2f1;
+}
+
+.pb-palette-item[data-dragging] {
+  opacity: 0.5;
+}
+
+.pb-node {
+  display: flex;
+  flex-direction: column;
+}
+
+.pb-node-type {
+  font-size: 0.75rem;
+  text-transform: capitalize;
+  color: #4a4846;
+}
+
+.pb-canvas .react-aria-TreeItem[data-dragging] {
+  opacity: 0.5;
+}
+
+.pb-canvas .react-aria-TreeItem[data-drop-target] {
+  outline: 2px dashed #0f6cbd;
+  outline-offset: -2px;
+}
+
+.pb-canvas .react-aria-DropIndicator[data-drop-target] {
+  outline: 2px solid #0f6cbd;
+  min-height: 2px;
+}
+
+.pb-preview {
+  margin-top: 1rem;
+  border: 1px solid #c8c6c4;
+  max-height: 32rem;
+  overflow: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pb-shell *,
+  .pb-shell *::before,
+  .pb-shell *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
