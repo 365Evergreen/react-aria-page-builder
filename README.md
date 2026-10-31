@@ -38,3 +38,9 @@ npm run preview
 6. Add the configuration to the `PageBlockConfig` union.
 
 Keep persisted `type` identifiers stable. When a contract changes, add an explicit migration rather than silently changing existing stored page data.
+
+## Deployment
+
+The app in `apps/web` is deployed to GitHub Pages by `.github/workflows/deploy-pages.yml` on every push to `main`: https://365evergreen.github.io/react-aria-page-builder/
+
+The build sets `VITE_BASE_PATH=/react-aria-page-builder/`. Repo Pages source must be **GitHub Actions** (Settings > Pages).
