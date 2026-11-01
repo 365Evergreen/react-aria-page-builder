@@ -8,74 +8,9 @@
   },
   {
     "id": 2,
-    "title": "Music",
-    "href": "/archive?category=music",
+    "title": "Editor",
+    "href": "/editor",
     "requiresAuth": false,
-    "hasMegaMenu": true,
-    "columns": [
-      {
-        "heading": "Artists",
-        "links": [
-          {
-            "label": "All",
-            "href": "/archive"
-          },
-          {
-            "label": "Music ",
-            "href": "/admin/post/create"
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "id": 3,
-    "title": "Video",
-    "href": "/archive?category=video",
-    "requiresAuth": false,
-    "hasMegaMenu": false
-  },
-  {
-    "id": 5,
-    "title": "Radio and podcasts",
-    "href": "/archive?category=radio-and-podcasts",
-    "requiresAuth": false,
-    "hasMegaMenu": false
-  },
-  {
-    "id": 1,
-    "title": "Admin",
-    "href": "/admin",
-    "requiresAuth": true,
-    "hasMegaMenu": true,
-    "columns": [
-      {
-        "heading": "Posts",
-        "links": [
-          {
-            "label": "Dashboard",
-            "href": "/admin/dashboard"
-          },
-          {
-            "label": "Edit posts",
-            "href": "/admin/post/:id"
-          },
-          {
-            "label": "Media library",
-            "href": "/admin/media-library"
-          },
-          {
-            "label": "Media admin",
-            "href": "/admin/media-admin"
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "id": 4,
-    "title": "Sign In",
-    "href": "/sign-in",
     "hasMegaMenu": false
   }
 ]

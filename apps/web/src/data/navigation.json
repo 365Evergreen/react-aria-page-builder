@@ -1,0 +1,33 @@
+{
+  "items": [
+    { "label": "Home", "href": "/" },
+    {
+      "label": "Posts",
+      "columns": [
+        {
+          "heading": "Read",
+          "links": [
+            { "label": "Latest posts", "href": "/", "description": "The newest writing, first." }
+          ]
+        },
+        {
+          "heading": "Elsewhere",
+          "links": [
+            {
+              "label": "GitHub",
+              "href": "https://github.com/365Evergreen",
+              "description": "Source and side projects."
+            }
+          ]
+        }
+      ],
+      "featured": {
+        "title": "Welcome",
+        "text": "Notes on building things for the web.",
+        "href": "/",
+        "cta": "Start reading"
+      }
+    },
+    { "label": "Admin", "href": "/admin" }
+  ]
+}
