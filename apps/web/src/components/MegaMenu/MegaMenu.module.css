@@ -1,0 +1,195 @@
+/* ── Nav bar ──────────────────────────────────────────────────── */
+
+.navBar {
+  display: flex;
+  align-items: center;
+}
+
+.navLinks {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+/* ── Nav item ─────────────────────────────────────────────────── */
+
+.navItem {
+  position: relative;
+}
+
+.navLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0 1.1rem;
+  height: 70px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text, #1A1A1A);
+  text-decoration: none;
+  white-space: nowrap;
+  border-bottom: 2px solid transparent;
+  transition: color 0.12s, border-color 0.12s;
+}
+
+.navLink:hover,
+.isActiveItem .navLink {
+  color: var(--accent, #8B1C1C);
+  border-bottom-color: var(--accent, #8B1C1C);
+}
+
+/* ── Dropdown arrow ───────────────────────────────────────────── */
+
+.arrow {
+  font-size: 0.45rem;
+  line-height: 1;
+  color: var(--text-muted, #7A7068);
+  transition: transform 0.15s ease;
+  display: inline-block;
+  margin-top: 1px;
+}
+
+.arrowOpen {
+  transform: rotate(180deg);
+}
+
+/* ── Megamenu dropdown ────────────────────────────────────────── */
+
+.megamenuDropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  min-width: 560px;
+  background: var(--bg, #F5F2EC);
+  border: 1px solid var(--border, #C8C4BC);
+  border-top: 3px solid var(--text, #1A1A1A);
+  z-index: 500;
+  animation: menuReveal 0.15s ease forwards;
+}
+
+@keyframes menuReveal {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.megamenuGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  padding: 0;
+}
+
+/* When fewer than 3 columns, let columns size naturally */
+.megamenuGrid > *:only-child {
+  grid-column: 1;
+}
+
+/* ── Megamenu column ──────────────────────────────────────────── */
+
+.megamenuColumn {
+  padding: 1.4rem 1.4rem 1.6rem;
+  border-right: 1px solid var(--border, #C8C4BC);
+}
+
+.megamenuColumn:last-child {
+  border-right: none;
+}
+
+.columnHeading {
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--accent, #8B1C1C);
+  margin: 0 0 0.9rem 0;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid var(--border, #C8C4BC);
+}
+
+.columnLinks {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.subLink {
+  display: block;
+  padding: 0.35rem 0;
+  font-size: 0.82rem;
+  font-weight: 400;
+  color: var(--text, #1A1A1A);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: color 0.12s, padding-left 0.12s;
+}
+
+.subLink:hover {
+  color: var(--accent, #8B1C1C);
+  padding-left: 0.4rem;
+}
+
+/* ── Mobile — stacked layout ──────────────────────────────────── */
+
+@media (max-width: 767px) {
+  .navLinks {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+    width: 100%;
+  }
+
+  .navItem {
+    width: 100%;
+    border-bottom: 1px solid var(--border, #C8C4BC);
+  }
+
+  .navLink {
+    width: 100%;
+    justify-content: space-between;
+    height: auto;
+    padding: 0.85rem 0;
+    border-bottom: none;
+    font-size: 0.9rem;
+  }
+
+  .navLink:hover,
+  .isActiveItem .navLink {
+    border-bottom-color: transparent;
+  }
+
+  .megamenuDropdown {
+    position: static;
+    min-width: 0;
+    width: 100%;
+    border: none;
+    border-top: 1px solid var(--border, #C8C4BC);
+    animation: none;
+  }
+
+  .megamenuGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .megamenuColumn {
+    border-right: none;
+    border-bottom: 1px solid var(--border, #C8C4BC);
+    padding: 1rem 0;
+  }
+
+  .megamenuColumn:last-child {
+    border-bottom: none;
+  }
+}

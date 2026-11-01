@@ -1,0 +1,74 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "paulibaby",
+  "main": "src/worker.ts",
+  "compatibility_date": "2026-10-23",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": [
+      "/api/*"
+    ]
+  },
+  "observability": {
+    "enabled": true
+  },
+  "upload_source_maps": true,
+
+
+  
+  // Default Environment (Local / Development)
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "paulibaby-blog",
+      "database_id": "d420d8f1-bae9-4ff8-9eb8-7ceed2b2c7a2",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "CONTENT",
+      "bucket_name": "paulibaby-blog-content"
+    },
+    {
+      "binding": "media",
+      "bucket_name": "paulibaby-blog-uploads"
+    }
+  ],
+
+  // Worker Previews (reuses the existing bindings)
+  "previews": {
+    "d1_databases": [
+      {
+        "binding": "DB",
+        "database_name": "paulibaby-blog",
+        "database_id": "d420d8f1-bae9-4ff8-9eb8-7ceed2b2c7a2",
+        "migrations_dir": "migrations"
+      }
+    ],
+    "r2_buckets": [
+      { "binding": "CONTENT", "bucket_name": "paulibaby-blog-content" },
+      { "binding": "media", "bucket_name": "paulibaby-blog-uploads" }
+    ]
+  },
+
+  // Production/Remote Overrides
+"env": {
+  "production": {
+    "d1_databases": [
+      {
+        "binding": "DB",
+        "database_name": "paulibaby-blog",
+        "database_id": "d420d8f1-bae9-4ff8-9eb8-7ceed2b2c7a2",
+        "migrations_dir": "migrations"
+      }
+    ],
+    "r2_buckets": [
+      { "binding": "CONTENT", "bucket_name": "paulibaby-blog-content" },
+      { "binding": "media", "bucket_name": "paulibaby-blog-uploads" }
+    ]
+  }
+}
+
+}
