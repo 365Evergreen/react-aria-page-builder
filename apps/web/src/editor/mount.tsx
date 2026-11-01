@@ -2,8 +2,8 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import type { ThemeColors } from '@page-builder/ui';
 import { createStore, readConfig } from './config';
-import { Editor } from './Editor';
-import { EditorIndex } from './EditorIndex';
+import { Editor } from './Editor/Editor';
+import { EditorIndex } from './EditorIndex/EditorIndex';
 import type { DocumentIdentity, PageStore } from './store/types';
 
 export interface MountEditorOptions {

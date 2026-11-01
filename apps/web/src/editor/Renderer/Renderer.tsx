@@ -1,7 +1,7 @@
 import { createRoot } from 'react-dom/client';
 import { PageDocumentRenderer } from '@page-builder/ui/renderer';
 import type { PageDocument, ThemeColors } from '@page-builder/ui/renderer';
-import './renderer.css';
+import styles from './Renderer.module.css';
 
 export interface MountRendererOptions {
   container: HTMLElement;
@@ -25,7 +25,7 @@ export const mountRenderer = ({
 }: MountRendererOptions): RendererHandle => {
   const root = createRoot(container);
   root.render(
-    <div className="pb-renderer-root">
+    <div className={styles.root}>
       <PageDocumentRenderer
         document={document}
         theme={theme}
