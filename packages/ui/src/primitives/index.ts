@@ -1,6 +1,7 @@
 export { Gallery } from '../primitives/Gallery/Gallery';
 export { HeroBanner } from '../primitives/HeroBanner/HeroBanner';
 export { Section } from '../primitives/Section/Section';
+export { PostBody, RichText, RichTextContent } from '../primitives/RichText/RichText';
 export { Theme } from '../primitives/Theme/Theme';
 
 export { Breadcrumbs } from '../primitives/Breadcrumbs/Breadcrumbs';

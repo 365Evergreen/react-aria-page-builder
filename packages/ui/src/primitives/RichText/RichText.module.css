@@ -1,0 +1,52 @@
+.section {
+  padding: 3rem 1.5rem;
+  background: var(--neutral-lighter-alt);
+  color: var(--neutral-dark);
+}
+
+.body {
+  width: min(100%, var(--text-max-width));
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+.body h2,
+.body h3,
+.body h4 {
+  margin: 1.5rem 0 0.5rem;
+  color: var(--neutral-dark);
+}
+
+.body p,
+.body ul,
+.body ol {
+  margin: 0 0 1rem;
+}
+
+.body code {
+  padding: 0.1em 0.3em;
+  border-radius: 0.25rem;
+  background: var(--neutral-light);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.9em;
+}
+
+.body a {
+  color: var(--theme-dark);
+  text-decoration: underline;
+}
+
+.postHeader {
+  margin-bottom: 1.5rem;
+}
+
+.postTitle {
+  margin: 0 0 0.5rem;
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  color: var(--neutral-dark);
+}
+
+.byline {
+  margin: 0;
+  color: var(--neutral-primary-alt);
+}
