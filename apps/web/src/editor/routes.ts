@@ -1,4 +1,5 @@
 import { isValidPageId } from './store/types';
+import type { DocumentIdentity } from './store/types';
 
 export type Route =
   | { kind: 'home' }
@@ -39,4 +40,11 @@ export const parseRoute = (pathname: string, basePath: string): Route => {
 export const editorHref = (basePath: string, pageId?: string) => {
   const base = basePath.endsWith('/') ? basePath : `${basePath}/`;
   return pageId ? `${base}editor/${encodeURIComponent(pageId)}` : `${base}editor`;
+};
+
+/** Builds links for hosts whose router owns `/admin/editor/pages/:id` routes. */
+export const hostedEditorHref = (routeBasePath: string, identity?: DocumentIdentity) => {
+  const base = routeBasePath.replace(/\/+$/, '');
+  if (!identity) return base || '/';
+  return `${base}/${identity.kind === 'page' ? 'pages' : 'posts'}/${encodeURIComponent(String(identity.id))}`;
 };

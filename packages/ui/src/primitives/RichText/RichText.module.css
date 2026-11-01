@@ -36,6 +36,49 @@
   text-decoration: underline;
 }
 
+.body img,
+.body video,
+.body iframe {
+  max-width: 100%;
+}
+
+.body audio {
+  max-width: 100%;
+}
+
+.body pre {
+  overflow: auto;
+  padding: 1rem;
+  background: var(--neutral-lighter);
+  white-space: pre-wrap;
+}
+
+.body .hljs-keyword,
+.body .hljs-selector-tag,
+.body .hljs-literal {
+  color: #0550ae;
+  font-weight: 600;
+}
+
+.body .hljs-string,
+.body .hljs-attr {
+  color: #116329;
+}
+
+.body .hljs-comment {
+  color: #656d76;
+}
+
+.body details,
+.body figure {
+  margin: 1rem 0;
+}
+
+.body summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
 .postHeader {
   margin-bottom: 1.5rem;
 }

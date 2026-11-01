@@ -1,4 +1,4 @@
-import { act, render, screen, within } from '@testing-library/react';
+import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { axe } from 'vitest-axe';
 import { describe, expect, it } from 'vitest';
@@ -122,6 +122,54 @@ describe('PageBuilder', () => {
     expect(screen.getByRole('button', { name: 'Undo' })).toBeDisabled();
   });
 
+  it('reports dirty changes and undo while retaining dirty state after a failed save', async () => {
+    const user = userEvent.setup();
+    const dirtyChanges: boolean[] = [];
+    render(
+      <PageBuilder
+        theme={theme}
+        initialTree={[createNode('hero-banner', 'a')]}
+        persistence={{
+          save: async () => ({ ok: false, errors: ['save failed'] }),
+          load: async () => null,
+        }}
+        onDirtyChange={(dirty) => dirtyChanges.push(dirty)}
+      />,
+    );
+    await waitFor(() => expect(dirtyChanges.at(-1)).toBe(false));
+    await user.click(rows()[0]);
+    await user.keyboard('{Control>}d{/Control}');
+    await waitFor(() => expect(dirtyChanges.at(-1)).toBe(true));
+    await user.keyboard('{Control>}z{/Control}');
+    await waitFor(() => expect(dirtyChanges.at(-1)).toBe(false));
+    await user.click(rows()[0]);
+    await user.keyboard('{Control>}d{/Control}');
+    await waitFor(() => expect(dirtyChanges.at(-1)).toBe(true));
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+    await screen.findByRole('alert');
+    expect(dirtyChanges.at(-1)).toBe(true);
+  });
+
+  it('clears initial dirty state only after a successful save', async () => {
+    const user = userEvent.setup();
+    const dirtyChanges: boolean[] = [];
+    render(
+      <PageBuilder
+        theme={theme}
+        initialTree={[createNode('hero-banner', 'a')]}
+        initialDirty
+        persistence={{
+          save: async () => ({ ok: true }),
+          load: async () => null,
+        }}
+        onDirtyChange={(dirty) => dirtyChanges.push(dirty)}
+      />,
+    );
+    await waitFor(() => expect(dirtyChanges.at(-1)).toBe(true));
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+    await waitFor(() => expect(dirtyChanges.at(-1)).toBe(false));
+  });
+
   it('edits alt text and validates URLs in the gallery', async () => {
     const user = userEvent.setup();
     setup();
@@ -154,6 +202,4 @@ describe('PageBuilder', () => {
     expect(localStorage.getItem('react-aria-page-builder.page')).toContain('"format": "react-aria-page-builder"');
   });
 });
-
-
 

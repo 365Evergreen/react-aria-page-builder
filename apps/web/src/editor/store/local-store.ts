@@ -10,6 +10,8 @@ import {
   PageStoreError,
   isValidPageId,
   type PageStore,
+  type PageStoreIdentity,
+  type PageStoreSaveOptions,
   type PageSummary,
 } from './types';
 
@@ -29,6 +31,14 @@ const assertValidId = (id: string) => {
   }
 };
 
+const localPageId = (identity: PageStoreIdentity): string => {
+  if (typeof identity === 'string') return identity;
+  if (identity.kind !== 'page' || typeof identity.id !== 'string') {
+    throw new PageStoreError(['LocalStore supports string page IDs only.'], 'unsupported-identity');
+  }
+  return identity.id;
+};
+
 /**
  * Keeps pages in localStorage. The `default` page uses the same key as earlier
  * versions of the builder, so previously saved pages (including the legacy flat
@@ -43,13 +53,14 @@ export class LocalStore implements PageStore {
     this.prefix = keyPrefix;
   }
 
-  private keyFor(id: string) {
+  private keyFor(identity: PageStoreIdentity) {
+    const id = localPageId(identity);
     assertValidId(id);
     return id === DEFAULT_PAGE_ID ? this.prefix : `${this.prefix}:${id}`;
   }
 
-  async load(id: string): Promise<PageDocument | null> {
-    const key = this.keyFor(id);
+  async load(identity: PageStoreIdentity) {
+    const key = this.keyFor(identity);
     let text: string | null;
     try {
       text = this.storage.getItem(key);
@@ -59,11 +70,15 @@ export class LocalStore implements PageStore {
     if (text === null) return null;
     const result = parsePage(text);
     if (!result.ok) throw new PageStoreError(result.errors);
-    return createDocument(result.tree, savedAtOf(text));
+    return {
+      document: createDocument(result.tree, savedAtOf(text)),
+      revision: null,
+      publishedRevision: null,
+    };
   }
 
-  async save(id: string, doc: PageDocument): Promise<void> {
-    const key = this.keyFor(id);
+  async save(identity: PageStoreIdentity, doc: PageDocument, _options?: PageStoreSaveOptions) {
+    const key = this.keyFor(identity);
     const result = serializeDocument(doc);
     if (!result.ok) throw new PageStoreError(result.errors);
     try {
@@ -73,6 +88,7 @@ export class LocalStore implements PageStore {
         'The browser refused to store the page (storage full or blocked).',
       ]);
     }
+    return { revision: null, publishedRevision: null };
   }
 
   async list(): Promise<PageSummary[]> {
@@ -86,13 +102,13 @@ export class LocalStore implements PageStore {
       if (id === null || !isValidPageId(id)) continue;
       const text = this.storage.getItem(key);
       const savedAt = text === null ? undefined : savedAtOf(text)?.toISOString();
-      pages.push(savedAt ? { id, savedAt } : { id });
+      pages.push(savedAt ? { id, kind: 'page', savedAt } : { id, kind: 'page' });
     }
-    return pages.sort((a, b) => a.id.localeCompare(b.id));
+    return pages.sort((a, b) => String(a.id).localeCompare(String(b.id)));
   }
 
-  async remove(id: string): Promise<void> {
-    this.storage.removeItem(this.keyFor(id));
+  async remove(identity: PageStoreIdentity): Promise<void> {
+    this.storage.removeItem(this.keyFor(identity));
   }
 }
 
