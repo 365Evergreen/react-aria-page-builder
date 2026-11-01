@@ -25,7 +25,7 @@ describe('LocalStore', () => {
     const { store } = make();
     const doc = createDocument([createNode('rich-text', 'r')]);
     await store.save('about', doc);
-    expect((await store.load('about'))?.tree).toEqual(doc.tree);
+    expect((await store.load('about'))?.document.tree).toEqual(doc.tree);
     expect(await store.load('missing')).toBeNull();
     expect((await store.list()).map((p) => p.id)).toEqual(['about']);
     await store.remove('about');
@@ -44,7 +44,19 @@ describe('LocalStore', () => {
     const saved = serializePage(tree);
     if (!saved.ok) throw new Error('serialize failed');
     storage.setItem('react-aria-page-builder.page', saved.json);
-    expect((await store.load('default'))?.tree).toEqual(tree);
+    expect((await store.load('default'))?.document.tree).toEqual(tree);
+  });
+
+  it('keeps local snapshots revision-free and supports typed page identities', async () => {
+    const { store } = make();
+    const doc = createDocument([createNode('rich-text', 'typed')]);
+    await store.save({ kind: 'page', id: 'typed' }, doc, { expectedRevision: null });
+    expect(await store.load({ kind: 'page', id: 'typed' })).toMatchObject({
+      document: { tree: doc.tree },
+      revision: null,
+      publishedRevision: null,
+    });
+    await expect(store.load({ kind: 'post', id: 12 })).rejects.toBeInstanceOf(PageStoreError);
   });
 });
 

@@ -9,7 +9,9 @@ import type {
 } from './block-configs';
 import { createPostBodyData } from './post-body';
 import { createHeading, createParagraph } from './rich-text';
-import { Gallery, HeroBanner, Section } from '../primitives';
+import { Gallery } from '../primitives/Gallery/Gallery';
+import { HeroBanner } from '../primitives/HeroBanner/HeroBanner';
+import { Section } from '../primitives/Section/Section';
 import { PostBody, RichText } from '../primitives/RichText/RichText';
 
 type PageRegistryItem = RegistryItem<PageBlockConfig>;

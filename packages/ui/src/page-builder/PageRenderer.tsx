@@ -3,6 +3,7 @@ import type { PageBlockConfig } from './block-configs';
 import type { BlockComponentProps, ThemeColors } from './types';
 import { BlockRegistry, isRegisteredBlockType } from './registry';
 import { ThemeInjector } from './ThemeInjector';
+import { AssetBaseContext } from '../primitives/RichText/RichText';
 
 interface PageRendererProps {
   blocks: PageBlockConfig[];
@@ -10,6 +11,8 @@ interface PageRendererProps {
   isEditing?: boolean;
   /** Render as a plain container when embedded inside another landmark. */
   asLandmark?: boolean;
+  /** Resolves relative media URLs independently from editor route URLs. */
+  assetBasePath?: string;
 }
 
 export const PageRenderer = ({
@@ -17,6 +20,7 @@ export const PageRenderer = ({
   theme,
   isEditing = false,
   asLandmark = true,
+  assetBasePath,
 }: PageRendererProps) => {
   const Wrapper = asLandmark ? 'main' : 'div';
   const firstHeroId = blocks.find((block) => block.type === 'hero-banner')?.id;
@@ -25,6 +29,7 @@ export const PageRenderer = ({
     : blocks.find((block) => block.type === 'post-body')?.id;
 
   return (
+  <AssetBaseContext.Provider value={assetBasePath}>
   <ThemeInjector theme={theme}>
     <Wrapper className="page-layout-wrapper">
       {blocks.map((block) => {
@@ -52,6 +57,6 @@ export const PageRenderer = ({
       })}
     </Wrapper>
   </ThemeInjector>
+  </AssetBaseContext.Provider>
   );
 };
-

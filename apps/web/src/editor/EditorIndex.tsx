@@ -1,19 +1,22 @@
-import { useCallback, useEffect, useState, type FormEvent } from 'react';
+import { useCallback, useEffect, useState, type FormEvent, type MouseEvent } from 'react';
 import { Button, TextField } from '@page-builder/ui';
-import { editorHref } from './routes';
+import { editorHref, hostedEditorHref } from './routes';
 import {
   PageStoreError,
   isValidPageId,
   type PageStore,
+  type PageStoreIdentity,
   type PageSummary,
 } from './store/types';
 
 interface EditorIndexProps {
   store: PageStore;
   basePath: string;
+  routeBasePath?: string;
+  navigate?: (href: string) => void;
 }
 
-export function EditorIndex({ store, basePath }: EditorIndexProps) {
+export function EditorIndex({ store, basePath, routeBasePath, navigate }: EditorIndexProps) {
   const [pages, setPages] = useState<PageSummary[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [newId, setNewId] = useState('');
@@ -37,12 +40,25 @@ export function EditorIndex({ store, basePath }: EditorIndexProps) {
   const create = (event: FormEvent) => {
     event.preventDefault();
     if (idError) return setShowError(true);
-    window.location.assign(editorHref(basePath, newId));
+    const href = routeBasePath
+      ? hostedEditorHref(routeBasePath, { kind: 'page', id: newId })
+      : editorHref(basePath, newId);
+    if (navigate) navigate(href);
+    else window.location.assign(href);
   };
 
-  const remove = async (id: string) => {
+  const pageHref = (id: string) => routeBasePath
+    ? hostedEditorHref(routeBasePath, { kind: 'page', id })
+    : editorHref(basePath, id);
+  const handleLinkClick = (event: MouseEvent<HTMLAnchorElement>, href: string) => {
+    if (!navigate || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    navigate(href);
+  };
+
+  const remove = async (identity: PageStoreIdentity) => {
     try {
-      await store.remove(id);
+      await store.remove(identity);
       refresh();
     } catch (cause) {
       setError(cause instanceof PageStoreError ? cause.message : 'Cannot delete the page.');
@@ -62,16 +78,19 @@ export function EditorIndex({ store, basePath }: EditorIndexProps) {
           <p>No saved pages yet. Create one below.</p>
         ) : (
           <ul className="editor-page-list">
-            {pages.map((page) => (
+            {pages.filter((page) => page.kind !== 'post').map((page) => (
               <li key={page.id}>
-                <a href={editorHref(basePath, page.id)}>{page.id}</a>
+                <a href={pageHref(String(page.id))} onClick={(event) => handleLinkClick(event, pageHref(String(page.id)))}>{page.id}</a>
                 {page.savedAt && (
                   <span className="editor-muted">
                     {' '}
                     saved <time dateTime={page.savedAt}>{new Date(page.savedAt).toLocaleString('en-GB')}</time>
                   </span>
                 )}{' '}
-                <Button variant="quiet" onPress={() => void remove(page.id)}>
+                <Button
+                  variant="quiet"
+                  onPress={() => void remove({ kind: page.kind ?? 'page', id: page.id })}
+                >
                   Delete {page.id}
                 </Button>
               </li>

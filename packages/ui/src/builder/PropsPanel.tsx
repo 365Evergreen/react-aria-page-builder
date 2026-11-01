@@ -17,6 +17,7 @@ interface PropsPanelProps {
   tree: PageTree;
   selectedId: string | null;
   dispatch: (action: BuilderAction) => void;
+  uploadMedia?: (file: File) => Promise<string>;
 }
 
 type Values = Record<string, unknown>;
@@ -138,7 +139,7 @@ function ListField({ field, value, onChange }: FieldEditorProps) {
   );
 }
 
-function FieldEditor(props: FieldEditorProps) {
+function FieldEditor(props: FieldEditorProps & { uploadMedia?: (file: File) => Promise<string> }) {
   switch (props.field.kind) {
     case 'select':
       return <SelectField {...props} />;
@@ -157,6 +158,7 @@ function FieldEditor(props: FieldEditorProps) {
           label={props.field.label}
           value={Array.isArray(props.value) ? (props.value as RichTextDoc) : []}
           onChange={props.onChange}
+          uploadMedia={props.uploadMedia}
         />
       );
     case 'list':
@@ -166,7 +168,7 @@ function FieldEditor(props: FieldEditorProps) {
   }
 }
 
-export function PropsPanel({ tree, selectedId, dispatch }: PropsPanelProps) {
+export function PropsPanel({ tree, selectedId, dispatch, uploadMedia }: PropsPanelProps) {
   const found = selectedId ? findNode(tree, selectedId) : null;
   const definition = found ? getDefinition(found.node.type) : undefined;
 
@@ -188,6 +190,7 @@ export function PropsPanel({ tree, selectedId, dispatch }: PropsPanelProps) {
                 key={`${scope}.${field.key}`}
                 field={field}
                 value={(found.node.props[scope] as Values | undefined)?.[field.key]}
+                uploadMedia={uploadMedia}
                 onChange={(value) =>
                   dispatch({
                     type: 'update',

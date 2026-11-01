@@ -36,8 +36,16 @@ interface PageBuilderProps {
   persistence?: PageBuilderPersistence;
   /** Save valid pages shortly after each change. */
   autoSave?: boolean;
+  /** Reports whether the current tree differs from the last successful save. */
+  onDirtyChange?: (dirty: boolean) => void;
+  /** Marks a new document dirty until its first successful save. */
+  initialDirty?: boolean;
   /** Heading shown above the builder. */
   title?: string;
+  /** Base path used only for relative media URLs in page preview. */
+  assetBasePath?: string;
+  /** Host upload service for image picker, paste and drag-and-drop. */
+  uploadMedia?: (file: File) => Promise<string>;
 }
 
 const errorText = (error: unknown) =>
@@ -49,7 +57,11 @@ export function PageBuilder({
   storageKey = DEFAULT_STORAGE_KEY,
   persistence: customPersistence,
   autoSave = false,
+  onDirtyChange,
+  initialDirty = false,
   title = 'Page builder',
+  assetBasePath,
+  uploadMedia,
 }: PageBuilderProps) {
   const persistence = useMemo<PageBuilderPersistence>(
     () =>
@@ -67,15 +79,50 @@ export function PageBuilder({
   );
   const [showPreview, setShowPreview] = useState(false);
   const { tree, selectedId } = state;
+  const savedTreeRef = useRef<PageTree | null>(initialDirty ? null : initialTree);
+  const currentTreeRef = useRef(tree);
+  currentTreeRef.current = tree;
+  const dirtyRef = useRef(initialDirty);
+  const dirtyCallbackRef = useRef(onDirtyChange);
+  dirtyCallbackRef.current = onDirtyChange;
+  const treeIsDirty = (candidate: PageTree) =>
+    savedTreeRef.current === null ||
+    JSON.stringify(candidate) !== JSON.stringify(savedTreeRef.current);
+  const setDirty = useCallback((dirty: boolean) => {
+    if (dirtyRef.current === dirty) return;
+    dirtyRef.current = dirty;
+    dirtyCallbackRef.current?.(dirty);
+  }, []);
   const [notice, setNotice] = useState<{ kind: 'info' | 'error'; lines: string[] } | null>(
     null,
   );
   const fileInput = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    dirtyCallbackRef.current?.(dirtyRef.current);
+  }, [onDirtyChange]);
+
+  useEffect(() => {
+    setDirty(treeIsDirty(tree));
+  }, [tree, setDirty]);
+
+  const markSaved = (savedTree: PageTree) => {
+    savedTreeRef.current = savedTree;
+    setDirty(treeIsDirty(currentTreeRef.current));
+  };
+
+  useEffect(() => {
     if (!autoSave) return;
     const timer = setTimeout(() => {
-      void persistence.save(tree).catch(() => undefined);
+      void persistence
+        .save(tree)
+        .then((result) => {
+          if (!result.ok) setNotice({ kind: 'error', lines: ['Cannot save yet:', ...result.errors] });
+          else markSaved(tree);
+        })
+        .catch((error: unknown) =>
+          setNotice({ kind: 'error', lines: ['Cannot save yet:', errorText(error)] }),
+        );
     }, 400);
     return () => clearTimeout(timer);
   }, [autoSave, tree, persistence]);
@@ -92,6 +139,7 @@ export function PageBuilder({
         ? { kind: 'info', lines: [`Page saved ${location}.`] }
         : { kind: 'error', lines: ['Cannot save yet:', ...result.errors] },
     );
+    if (result.ok) markSaved(tree);
   };
 
   const handleLoad = async () => {
@@ -105,6 +153,8 @@ export function PageBuilder({
     if (!result.ok) {
       return setNotice({ kind: 'error', lines: ['The saved page is invalid:', ...result.errors] });
     }
+    savedTreeRef.current = result.tree;
+    setDirty(false);
     dispatch({ type: 'load', tree: result.tree, message: 'Saved page loaded.' });
     setNotice({ kind: 'info', lines: ['Saved page loaded. Undo restores the previous page.'] });
   };
@@ -275,18 +325,20 @@ export function PageBuilder({
         />
         {showPreview && (
           <section className="pb-preview" aria-label="Page preview">
-            <PageRenderer blocks={blocks} theme={theme} isEditing asLandmark={false} />
+            <PageRenderer
+              blocks={blocks}
+              theme={theme}
+              isEditing
+              asLandmark={false}
+              assetBasePath={assetBasePath}
+            />
           </section>
         )}
       </main>
 
       <aside className="pb-sidebar" aria-label="Block inspector">
-        <PropsPanel tree={tree} selectedId={selectedId} dispatch={dispatch} />
+        <PropsPanel tree={tree} selectedId={selectedId} dispatch={dispatch} uploadMedia={uploadMedia} />
       </aside>
     </div>
   );
 }
-
-
-
-
