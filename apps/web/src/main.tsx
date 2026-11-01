@@ -17,6 +17,21 @@ switch (route.kind) {
   case 'home':
     mountEditor({ container, pageId: DEFAULT_PAGE_ID, basePath });
     break;
+  case 'issues':
+    void import('./issues/mount')
+      .then(({ mountIssueDashboard }) => mountIssueDashboard({ container, basePath }))
+      .catch((cause: unknown) => {
+        const main = document.createElement('main');
+        main.className = 'editor-status';
+        main.setAttribute('role', 'alert');
+        const heading = document.createElement('h1');
+        heading.textContent = 'The issue dashboard cannot start';
+        const message = document.createElement('p');
+        message.textContent = cause instanceof Error ? cause.message : 'Unexpected error.';
+        main.append(heading, message);
+        container.replaceChildren(main);
+      });
+    break;
   case 'editor-index':
     mountEditor({ container, basePath });
     break;

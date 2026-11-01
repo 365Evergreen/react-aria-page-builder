@@ -3,6 +3,7 @@ import type { DocumentIdentity } from './store/types';
 
 export type Route =
   | { kind: 'home' }
+  | { kind: 'issues' }
   | { kind: 'editor-index' }
   | { kind: 'editor'; pageId: string }
   | { kind: 'invalid-id'; id: string }
@@ -29,6 +30,7 @@ export const parseRoute = (pathname: string, basePath: string): Route => {
   if (segments.length === 0 || (segments.length === 1 && segments[0] === 'index.html')) {
     return { kind: 'home' };
   }
+  if (segments.length === 1 && segments[0] === 'issues') return { kind: 'issues' };
   if (segments[0] !== 'editor') return { kind: 'not-found' };
   if (segments.length === 1) return { kind: 'editor-index' };
   if (segments.length > 2) return { kind: 'not-found' };
