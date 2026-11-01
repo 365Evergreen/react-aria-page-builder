@@ -62,6 +62,7 @@ describe('LocalStore', () => {
 
 describe('routes and config', () => {
   it('parses routes under a base path', () => {
+    expect(parseRoute('/app/issues', '/app/').kind).toBe('issues');
     expect(parseRoute('/app/editor', '/app/').kind).toBe('editor-index');
     expect(parseRoute('/app/editor/x1', '/app/')).toMatchObject({ kind: 'editor', pageId: 'x1' });
     expect(parseRoute('/editor/x1', '/').kind).toBe('editor');

@@ -67,6 +67,10 @@ export function EditorIndex({ store, basePath, routeBasePath, navigate }: Editor
 
   return (
     <main className="editor-index">
+      <nav className="editor-nav" aria-label="Page builder">
+        <a href={`${basePath}issues`}>Issue dashboard</a>
+        <a href={editorHref(basePath)}>Page builder</a>
+      </nav>
       <h1>Pages</h1>
       {error && <p role="alert">{error}</p>}
 

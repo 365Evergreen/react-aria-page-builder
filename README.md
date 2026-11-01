@@ -43,6 +43,12 @@ npm run dev
 
 Changes are announced in a polite live region and focus returns to the affected block. Animations are disabled under `prefers-reduced-motion`.
 
+## Issue dashboard
+
+Open `/issues` to browse this repository's public GitHub issues. The dashboard provides search, state and label filters, summary counts, and list/board layouts; links to an issue and issue creation open GitHub. It uses the unauthenticated GitHub REST API, so issue writes (such as closing or assigning issues) are completed on GitHub, and private repositories are not supported.
+
+Set `VITE_GITHUB_OWNER` and `VITE_GITHUB_REPO` at build time to point the dashboard at a different public repository. The defaults are `365Evergreen/react-aria-page-builder`.
+
 ## Tests
 
 ```bash
