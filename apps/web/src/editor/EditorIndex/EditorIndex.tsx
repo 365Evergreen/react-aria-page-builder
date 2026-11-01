@@ -1,13 +1,14 @@
 import { useCallback, useEffect, useState, type FormEvent, type MouseEvent } from 'react';
 import { Button, TextField } from '@page-builder/ui';
-import { editorHref, hostedEditorHref } from './routes';
+import styles from './EditorIndex.module.css';
+import { editorHref, hostedEditorHref } from '../routes';
 import {
   PageStoreError,
   isValidPageId,
   type PageStore,
   type PageStoreIdentity,
   type PageSummary,
-} from './store/types';
+} from '../store/types';
 
 interface EditorIndexProps {
   store: PageStore;
@@ -66,8 +67,8 @@ export function EditorIndex({ store, basePath, routeBasePath, navigate }: Editor
   };
 
   return (
-    <main className="editor-index">
-      <nav className="editor-nav" aria-label="Page builder">
+    <main className={styles.index}>
+      <nav className={styles.nav} aria-label="Page builder">
         <a href={`${basePath}issues`}>Issue dashboard</a>
         <a href={editorHref(basePath)}>Page builder</a>
       </nav>
@@ -81,12 +82,12 @@ export function EditorIndex({ store, basePath, routeBasePath, navigate }: Editor
         ) : pages.length === 0 ? (
           <p>No saved pages yet. Create one below.</p>
         ) : (
-          <ul className="editor-page-list">
+          <ul className={styles.pageList}>
             {pages.filter((page) => page.kind !== 'post').map((page) => (
               <li key={page.id}>
                 <a href={pageHref(String(page.id))} onClick={(event) => handleLinkClick(event, pageHref(String(page.id)))}>{page.id}</a>
                 {page.savedAt && (
-                  <span className="editor-muted">
+                  <span className={styles.muted}>
                     {' '}
                     saved <time dateTime={page.savedAt}>{new Date(page.savedAt).toLocaleString('en-GB')}</time>
                   </span>

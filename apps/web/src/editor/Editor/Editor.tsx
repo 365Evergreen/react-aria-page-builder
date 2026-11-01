@@ -9,14 +9,15 @@ import {
   type PageTree,
   type ThemeColors,
 } from '@page-builder/ui';
-import examplePage from '../example-page.json';
-import { editorHref, hostedEditorHref } from './routes';
+import examplePage from '../../example-page.json';
+import styles from './Editor.module.css';
+import { editorHref, hostedEditorHref } from '../routes';
 import {
   DEFAULT_PAGE_ID,
   PageStoreError,
   type DocumentIdentity,
   type PageStore,
-} from './store/types';
+} from '../store/types';
 
 const example = pageDefinitionSchema.parse(examplePage);
 
@@ -133,7 +134,7 @@ export function Editor({
 
   if (state.status === 'loading') {
     return (
-      <main className="editor-status" role="status">
+      <main className={styles.status} role="status">
         Loading {identity.kind} “{routeId}”…
       </main>
     );
@@ -141,7 +142,7 @@ export function Editor({
 
   if (state.status === 'error') {
     return (
-      <main className="editor-status" role="alert">
+      <main className={styles.status} role="alert">
         <h1>Cannot open {identity.kind} “{routeId}”</h1>
         {state.errors.map((line, index) => (
           <p key={index}>{line}</p>
@@ -155,7 +156,7 @@ export function Editor({
 
   return (
     <>
-      <nav className="editor-nav" aria-label="Editor">
+      <nav className={styles.nav} aria-label="Editor">
         <a href={indexHref} onClick={handleBackClick}>All pages</a>
         <span>
           {identity.kind}: <strong>{routeId}</strong>
