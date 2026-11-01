@@ -1,12 +1,16 @@
 import SiteHeader from "../../components/SiteHeader/SiteHeader";
-import styles from './AppShell.module.css';
-
+import styles from "./AppShell.module.css";
 import { Outlet } from "react-router-dom";
-const AppShell = ({ children }: { children: React.ReactNode }) => {
+
+const AppShell = () => {
   return (
     <div className={styles.appShell}>
       <SiteHeader />
-      <Outlet />
+      <main className={styles.mainContent} style={{ paddingBottom: "110px" }}>
+        <div className={styles.contentContainer}>
+          <Outlet />
+        </div>
+      </main>
     </div>
   );
 };

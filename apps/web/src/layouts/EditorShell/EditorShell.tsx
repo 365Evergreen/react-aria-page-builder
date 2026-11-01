@@ -1,7 +1,18 @@
-import styles from './EditorShell.module.css';
+import styles from './EditorShell.module.css'
+import { Outlet } from 'react-router-dom';
+ 
+export function EditorShell() {
+    
 
-const EditorShell = ({ children }: { children: React.ReactNode }) => {
-  return <div className={styles.editorShell}>{children}</div>;
-};
+    return (
+        <div className={styles.editorShell}>
 
-export default EditorShell;
+            <main className={styles.mainContainer}>
+                <Outlet />
+            </main>
+
+        </div>
+    );
+}
+
+export default EditorShell

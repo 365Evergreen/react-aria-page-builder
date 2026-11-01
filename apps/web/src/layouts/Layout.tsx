@@ -1,6 +1,6 @@
-import { Outlet } from "react-router";
+import { Outlet } from "react-router-dom";
 import styles from "./AppShell.module.css";
-import { Header as SiteHeader } from "../components/Header/Header";
+import { SiteHeader } from "../components/SiteHeader/SiteHeader";
 
 export function Layout() {
 

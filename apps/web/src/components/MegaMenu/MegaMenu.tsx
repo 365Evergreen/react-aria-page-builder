@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import menuData from "./megaMenu.json";
 import styles from "./MegaMenu.module.css";
-import { useIsAuthenticated } from "../../hooks/useIsAuthenticated";
 
 interface MegaMenuProps {
   onItemClick?: () => void;
@@ -11,10 +10,7 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ onItemClick }) => {
   const [activeMenuId, setActiveMenuId] = useState<string | number | null>(
     null,
   );
-  const isAuthenticated = useIsAuthenticated();
-  const visibleNav = menuData.filter(
-    (item) => !item.requiresAuth || isAuthenticated,
-  );
+
 
   // Safely trigger mobile tap vs desktop hover navigation
   const handleItemClick = (e: React.MouseEvent, item: (typeof menuData)[0]) => {
@@ -35,7 +31,7 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ onItemClick }) => {
   return (
     <nav className={styles.navBar} aria-label="Main Navigation">
       <ul className={styles.navLinks}>
-        {visibleNav.map((item) => (
+        {menuData.map((item) => (
           <li
             key={item.id}
             className={`${styles.navItem} ${
@@ -78,7 +74,7 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ onItemClick }) => {
                         {column.links
                           .filter(
                             (link) =>
-                              !("requiresAuth" in link) || isAuthenticated,
+                              !("requiresAuth" in link),
                           )
                           .map((link, linkIdx) => (
                             <li key={linkIdx}>
